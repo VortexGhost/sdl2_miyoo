@@ -346,29 +346,38 @@ void MMIYOO_PumpEvents(_THIS)
     int xDirection, yDirection;
     
     SDL_SemWait(event_sem);
-    
-    if (specialKey) { // handles moonlight key combos (CTRL+ALT+SHIFT+_) 
+
+    if (specialKey) { // handles moonlight key combos (CTRL+ALT+SHIFT+_)
         sendSpecial();
     }
-    
+
     if (!hotkeyEnable) {
         SDL_SendKeyboardKey(SDL_RELEASED, moon.customkey.Select);
     }
-            
+
     if (MMiyooEventInfo.mode == MMIYOO_KEYPAD_MODE) {
         if (pre_keypad_bitmaps != MMiyooEventInfo.keypad.bitmaps) {
             int cc = 0;
             uint32_t v0 = pre_keypad_bitmaps;
             uint32_t v1 = MMiyooEventInfo.keypad.bitmaps;
 
-            for (cc=0; cc<=MYKEY_LAST_BITS; cc++) {              
-                if ((v0 & 1) != (v1 & 1)) {
+            /* MYKEY_UP..MYKEY_START (0..MYKEY_START) are now reported as real
+             * SDL joystick buttons by the mmiyoo joystick driver (which reads
+             * this same MMiyooEventInfo.keypad.bitmaps). Sending them as
+             * synthetic keyboard keys too would make every press arrive at
+             * the host twice - once as a key, once as a gamepad button - so
+             * skip those bits here and only keep the keyboard path for
+             * everything above MYKEY_START (Menu, and whatever else uses
+             * this table). Bits still have to be shifted for every entry to
+             * keep cc aligned with the bitmap position. */
+            for (cc=0; cc<=MYKEY_LAST_BITS; cc++) {
+                if (cc > MYKEY_START && (v0 & 1) != (v1 & 1)) {
                     SDL_SendKeyboardKey((v1 & 1) ? SDL_PRESSED : SDL_RELEASED, SDL_GetScancodeFromKey(code[cc]));
                 }
                 v0>>= 1;
                 v1>>= 1;
             }
-            
+
             pre_keypad_bitmaps = MMiyooEventInfo.keypad.bitmaps;
         }
     } else {

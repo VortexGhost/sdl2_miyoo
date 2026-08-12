@@ -61,6 +61,8 @@
 #define SDL_DYNAMIC_API 0  /* vitasdk doesn't support dynamic linking */
 #elif defined(DYNAPI_NEEDS_DLOPEN) && !defined(HAVE_DLOPEN)
 #define SDL_DYNAMIC_API 0  /* we need dlopen(), but don't have it.... */
+#elif defined(MMIYOO)
+#define SDL_DYNAMIC_API 0  /* fixed single build for the Miyoo Mini; dynapi's jump table isn't kept in sync with newer gamecontroller API additions in this fork */
 #endif
 
 /* everyone else. This is where we turn on the API if nothing forced it off. */
