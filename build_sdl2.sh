@@ -6,11 +6,19 @@ OBJDIR=$REPO/build_obj
 mkdir -p "$OBJDIR"
 : > "$OBJDIR/../compile_errors.log"
 
-# Bring in the two external headers this fork expects to find alongside its own
-# (SDL_image.h) without exposing the rest of /usr/include (which pollutes cpuinfo's
-# <elf.h> with the host's glibc elf.h instead of the target sysroot's).
+# Bring in the external headers this fork expects to find alongside its own
+# (SDL_image.h, SDL_ttf.h) without exposing the rest of /usr/include (which
+# pollutes cpuinfo's <elf.h> with the host's glibc elf.h instead of the
+# target sysroot's).
 cp -n /usr/include/SDL2/SDL_image.h "$REPO/include/" 2>/dev/null || true
+cp -n /usr/include/SDL2/SDL_ttf.h "$REPO/include/" 2>/dev/null || true
 ln -sfn /usr/include/json-c "$REPO/include/json-c"
+
+# Self-referencing symlink so this fork's own (newer) "SDL2/SDL.h"-style
+# includes resolve here instead of accidentally picking up armhf apt's older
+# SDL2 2.0.9 headers via -I/usr/include - mixing the two produces duplicate/
+# conflicting type definitions.
+ln -sfn . "$REPO/include/SDL2"
 
 CFLAGS="-I$REPO/include -idirafter $REPO/src/video/khronos \
   -Wall -fno-strict-aliasing -fPIC -mcpu=cortex-a7 -mfpu=neon-vfpv4 -O3 \
