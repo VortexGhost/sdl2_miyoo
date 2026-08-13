@@ -58,8 +58,13 @@ static int MMIYOO_JoystickInit(void)
         "a:b%d,b:b%d,x:b%d,y:b%d,back:b%d,start:b%d,"
         "leftshoulder:b%d,rightshoulder:b%d,lefttrigger:b%d,righttrigger:b%d,"
         "dpup:b%d,dpdown:b%d,dpleft:b%d,dpright:b%d,",
+        /* Physical A/B and X/Y are swapped here on purpose: the Miyoo's
+         * face buttons are labeled Nintendo-style (A right, B bottom, X top,
+         * Y left) but SDL_CONTROLLER_BUTTON_A/B/X/Y follow Xbox-style
+         * position semantics (A bottom, B right, X left, Y top) - hosts
+         * expect logical buttons by position, not by the physical label. */
         guid_str,
-        MYKEY_A, MYKEY_B, MYKEY_X, MYKEY_Y, MYKEY_SELECT, MYKEY_START,
+        MYKEY_B, MYKEY_A, MYKEY_Y, MYKEY_X, MYKEY_SELECT, MYKEY_START,
         MYKEY_L1, MYKEY_R1, MYKEY_L2, MYKEY_R2,
         MYKEY_UP, MYKEY_DOWN, MYKEY_LEFT, MYKEY_RIGHT);
     SDL_GameControllerAddMapping(mapping);
